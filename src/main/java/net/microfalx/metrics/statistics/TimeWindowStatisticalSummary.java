@@ -20,8 +20,8 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary {
 
     private final DescriptiveStatistics statistics = new DescriptiveStatistics();
     private final SimpleStatisticalSummary windowSummary = new SimpleStatisticalSummary();
-    private final Duration interval;
-    private long refreshInterval = ONE_MINUTE;
+    private volatile Duration interval;
+    private volatile long refreshInterval = ONE_MINUTE;
 
     private volatile long lastUpdate = -1;
     private volatile long lastWindowUpdate = currentTimeMillis();
@@ -31,6 +31,12 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary {
         statistics.setWindowSize(MINIMUM_WINDOW);
         this.interval = interval;
         updateWindow();
+    }
+
+    public TimeWindowStatisticalSummary setInterval(Duration interval) {
+        requireNonNull(interval);
+        this.interval = interval;
+        return this;
     }
 
     public TimeWindowStatisticalSummary setRefreshInterval(Duration refreshInterval) {
