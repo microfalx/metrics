@@ -47,4 +47,96 @@ class TimeWindowStatisticalSummaryTest {
 
     }
 
+    @Test
+    void defaultDirectionIsHigherIsBetter() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        assertEquals(Direction.HIGHER_IS_BETTER, summary.getDirection());
+    }
+
+    @Test
+    void setDirectionChangesDirection() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10))
+                .setDirection(Direction.LOWER_IS_BETTER);
+        assertEquals(Direction.LOWER_IS_BETTER, summary.getDirection());
+    }
+
+    @Test
+    void trendWithTooFewSamplesIsStable() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        summary.add(1.0);
+        summary.add(2.0);
+        assertEquals(Trend.STABLE, summary.getTrend());
+    }
+
+    @Test
+    void trendIsStableForConstantValues() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 5; i++) summary.add(100.0);
+        assertEquals(Trend.STABLE, summary.getTrend());
+    }
+
+    @Test
+    void trendIsFluctuatingForOscillatingValuesWithNoSlope() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        // palindrome sequence: no net slope (cancels by symmetry), but large swings around the mean
+        double[] values = {50, 150, 50, 150, 100, 100, 150, 50, 150, 50};
+        for (double value : values) summary.add(value);
+        assertEquals(Trend.FLUCTUATING, summary.getTrend());
+    }
+
+    @Test
+    void trendIsSlightlyImprovingForGentleRise() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(100 + i);
+        assertEquals(Trend.SLIGHTLY_IMPROVING, summary.getTrend());
+    }
+
+    @Test
+    void trendIsImprovingForModerateRise() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(100 + i * 3);
+        assertEquals(Trend.IMPROVING, summary.getTrend());
+    }
+
+    @Test
+    void trendIsSharplyImprovingForSteepRise() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(100 + i * 10);
+        assertEquals(Trend.SHARPLY_IMPROVING, summary.getTrend());
+    }
+
+    @Test
+    void trendIsSlightlyWorseningForGentleFall() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(109 - i);
+        assertEquals(Trend.SLIGHTLY_WORSENING, summary.getTrend());
+    }
+
+    @Test
+    void trendIsWorseningForModerateFall() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(127 - i * 3);
+        assertEquals(Trend.WORSENING, summary.getTrend());
+    }
+
+    @Test
+    void trendIsSharplyWorseningForSteepFall() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(190 - i * 10);
+        assertEquals(Trend.SHARPLY_WORSENING, summary.getTrend());
+    }
+
+    @Test
+    void trendRespectsLowerIsBetterDirection() {
+        TimeWindowStatisticalSummary rising = new TimeWindowStatisticalSummary(Duration.ofSeconds(10))
+                .setDirection(Direction.LOWER_IS_BETTER);
+        for (int i = 0; i < 10; i++) rising.add(100 + i * 10);
+        assertEquals(Trend.SHARPLY_WORSENING, rising.getTrend());
+
+        TimeWindowStatisticalSummary falling = new TimeWindowStatisticalSummary(Duration.ofSeconds(10))
+                .setDirection(Direction.LOWER_IS_BETTER);
+        for (int i = 0; i < 10; i++) falling.add(190 - i * 10);
+        assertEquals(Trend.SHARPLY_IMPROVING, falling.getTrend());
+    }
+
 }
