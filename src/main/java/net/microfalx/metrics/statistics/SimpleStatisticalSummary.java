@@ -2,6 +2,7 @@ package net.microfalx.metrics.statistics;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -11,6 +12,8 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
  * An implementation of a {@link StatisticalSummary} which only cares about average, min and max.
  */
 public class SimpleStatisticalSummary implements MutableStatisticalSummary {
+
+    private static final long serialVersionUID = -7796746446080742315L;
 
     private long n = 0;
     private double sum;

@@ -22,4 +22,11 @@ public interface TrendStatisticalSummary extends StatisticalSummary {
      * @return a non-null instance
      */
     Trend getTrend();
+
+    /**
+     * Returns the values used to calculate the trend.
+     *
+     * @return a non-null instance
+     */
+    double[] getValues();
 }

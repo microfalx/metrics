@@ -17,6 +17,8 @@ import static net.microfalx.lang.TimeUtils.millisSince;
  */
 public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, TrendStatisticalSummary {
 
+    private static final long serialVersionUID = 8568742708496566238L;
+
     private final static int WINDOW_ROUNDING = 5;
     private final static int MINIMUM_WINDOW = WINDOW_ROUNDING * 2;
 
@@ -111,6 +113,11 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
         } else {
             return improving ? Trend.SLIGHTLY_IMPROVING : Trend.SLIGHTLY_WORSENING;
         }
+    }
+
+    @Override
+    public double[] getValues() {
+        return statistics.getValues();
     }
 
     @Override

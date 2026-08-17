@@ -2,6 +2,7 @@ package net.microfalx.metrics.statistics;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 
+import java.io.Serializable;
 import java.time.Duration;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -9,7 +10,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 /**
  * A subclass of {@link org.apache.commons.math3.stat.descriptive.SummaryStatistics} which allows adding new values.
  */
-public interface MutableStatisticalSummary extends StatisticalSummary {
+public interface MutableStatisticalSummary extends StatisticalSummary, Serializable {
 
     /**
      * Adds a new value to the statistics.
