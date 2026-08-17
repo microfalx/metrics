@@ -9,6 +9,15 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 public interface TrendStatisticalSummary extends StatisticalSummary {
 
     /**
+     * Creates the default implementation of the {@link TrendStatisticalSummary}.
+     *
+     * @return a non-null instance
+     */
+    static TrendStatisticalSummary create() {
+        return new TimeWindowStatisticalSummary();
+    }
+
+    /**
      * Returns the direction of change that is considered desirable for these metrics
      * (for example, lower latency is better, while higher throughput is better).
      *
