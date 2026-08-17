@@ -58,6 +58,10 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
     private volatile long lastUpdate = -1;
     private volatile long lastWindowUpdate = currentTimeMillis();
 
+    public TimeWindowStatisticalSummary() {
+        this(Duration.ofMinutes(5));
+    }
+
     public TimeWindowStatisticalSummary(Duration interval) {
         requireNonNull(interval);
         statistics.setWindowSize(MINIMUM_WINDOW);
