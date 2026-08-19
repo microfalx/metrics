@@ -72,4 +72,60 @@ public enum Trend {
     public boolean isStable() {
         return this == STABLE || this == FLUCTUATING;
     }
+
+    /**
+     * Returns a glyph from a standard (Unicode) font representing this trend.
+     *
+     * @return the glyph
+     */
+    public String toText() {
+        switch (this) {
+            case SHARPLY_WORSENING:
+                return "⇊";
+            case WORSENING:
+                return "↓";
+            case SLIGHTLY_WORSENING:
+                return "↘";
+            case STABLE:
+                return "→";
+            case FLUCTUATING:
+                return "↕";
+            case SLIGHTLY_IMPROVING:
+                return "↗";
+            case IMPROVING:
+                return "↑";
+            case SHARPLY_IMPROVING:
+                return "⇈";
+            default:
+                throw new IllegalStateException("Unhandled trend: " + this);
+        }
+    }
+
+    /**
+     * Returns an HTML snippet with a Font Awesome icon representing this trend.
+     *
+     * @return the HTML snippet
+     */
+    public String toHtml() {
+        switch (this) {
+            case SHARPLY_WORSENING:
+                return "<i class=\"fa-solid fa-angles-down text-red\"></i>";
+            case WORSENING:
+                return "<i class=\"fa-solid fa-arrow-trend-down text-red bg-opacity-75\"></i>";
+            case SLIGHTLY_WORSENING:
+                return "<i class=\"fa-solid fa-arrow-down-right text-red bg-opacity-50\"></i>";
+            case STABLE:
+                return "<i class=\"fa-solid fa-grip-lines text-green\"></i>";
+            case FLUCTUATING:
+                return "<i class=\"fa-solid fa-wave-pulse text-blue\"></i>";
+            case SLIGHTLY_IMPROVING:
+                return "<i class=\"fa-solid fa-arrow-up-right text-yellow bg-opacity-50\"></i>";
+            case IMPROVING:
+                return "<i class=\"fa-solid fa-arrow-trend-up text-yellow bg-opacity-75\"></i>";
+            case SHARPLY_IMPROVING:
+                return "<i class=\"fa-solid fa-angles-up text-yellow\"></i>";
+            default:
+                throw new IllegalStateException("Unhandled trend: " + this);
+        }
+    }
 }
