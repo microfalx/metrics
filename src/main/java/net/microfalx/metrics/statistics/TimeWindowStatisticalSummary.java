@@ -175,7 +175,7 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
         long averageUpdateInterval = (long) windowSummary.getMean();
         if (averageUpdateInterval == 0) return;
         int currentWindow = (int) (interval.toMillis() / averageUpdateInterval);
-        currentWindow = Math.min(MINIMUM_WINDOW, (currentWindow / WINDOW_ROUNDING) * WINDOW_ROUNDING);
+        currentWindow = Math.max(MINIMUM_WINDOW, (currentWindow / WINDOW_ROUNDING) * WINDOW_ROUNDING);
         if (currentWindow != statistics.getWindowSize()) statistics.setWindowSize(currentWindow);
         lastWindowUpdate = currentTimeMillis();
     }
