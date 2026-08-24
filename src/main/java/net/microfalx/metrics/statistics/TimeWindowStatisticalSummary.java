@@ -7,8 +7,7 @@ import java.time.Duration;
 
 import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
-import static net.microfalx.lang.TimeUtils.ONE_MINUTE;
-import static net.microfalx.lang.TimeUtils.millisSince;
+import static net.microfalx.lang.TimeUtils.*;
 
 /**
  * A {@link org.apache.commons.math3.stat.descriptive.StatisticalSummary} implementation which calculates
@@ -94,7 +93,12 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
 
     @Override
     public Trend getTrend() {
-        double[] values = statistics.getValues();
+        return getTrend(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public Trend getTrend(int limit) {
+        double[] values = getValues(limit);
         if (values.length < MINIMUM_TREND_SAMPLES) return Trend.STABLE;
         SimpleRegression regression = new SimpleRegression();
         for (int index = 0; index < values.length; index++) {
@@ -121,7 +125,16 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
 
     @Override
     public double[] getValues() {
-        return statistics.getValues();
+        return getValues(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public double[] getValues(int limit) {
+        double[] values = statistics.getValues();
+        if (values.length <= limit) return values;
+        double[] result = new double[limit];
+        System.arraycopy(values, values.length - limit, result, 0, limit);
+        return result;
     }
 
     @Override
@@ -176,7 +189,9 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
         if (averageUpdateInterval == 0) return;
         int currentWindow = (int) (interval.toMillis() / averageUpdateInterval);
         currentWindow = Math.max(MINIMUM_WINDOW, (currentWindow / WINDOW_ROUNDING) * WINDOW_ROUNDING);
-        if (currentWindow != statistics.getWindowSize()) statistics.setWindowSize(currentWindow);
+        if (currentWindow != statistics.getWindowSize()) {
+            statistics.setWindowSize(currentWindow);
+        }
         lastWindowUpdate = currentTimeMillis();
     }
 }

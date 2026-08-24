@@ -109,21 +109,21 @@ public enum Trend {
     public String toHtml() {
         switch (this) {
             case SHARPLY_WORSENING:
-                return "<i class=\"fa-solid fa-angles-down text-red\"></i>";
+                return "<i class=\"fa-solid fa-angles-down text-red\" data-bs-toggle=\"tooltip\" title=\"The trend is sharply worsening\"></i>";
             case WORSENING:
-                return "<i class=\"fa-solid fa-arrow-trend-down text-red bg-opacity-75\"></i>";
+                return "<i class=\"fa-solid fa-arrow-trend-down text-red bg-opacity-75\" data-bs-toggle=\"tooltip\" title=\"The trend is worsening\"></i>";
             case SLIGHTLY_WORSENING:
-                return "<i class=\"fa-solid fa-arrow-down-right text-red bg-opacity-50\"></i>";
+                return "<i class=\"fa-solid fa-arrow-down-right text-red bg-opacity-50\" data-bs-toggle=\"tooltip\" title=\"The trend is slightly worsening\"></i>";
             case STABLE:
-                return "<i class=\"fa-solid fa-grip-lines text-green\"></i>";
+                return "<i class=\"fa-solid fa-grip-lines text-green\" data-bs-toggle=\"tooltip\" title=\"The trend is stable\"></i>";
             case FLUCTUATING:
-                return "<i class=\"fa-solid fa-wave-pulse text-blue\"></i>";
+                return "<i class=\"fa-solid fa-wave-square text-blue\" data-bs-toggle=\"tooltip\" title=\"The trend is fluctuating\"></i>";
             case SLIGHTLY_IMPROVING:
-                return "<i class=\"fa-solid fa-arrow-up-right text-yellow bg-opacity-50\"></i>";
+                return "<i class=\"fa-solid fa-arrow-up-right text-yellow bg-opacity-50\" data-bs-toggle=\"tooltip\" title=\"The trend is slightly improving\"></i>";
             case IMPROVING:
-                return "<i class=\"fa-solid fa-arrow-trend-up text-yellow bg-opacity-75\"></i>";
+                return "<i class=\"fa-solid fa-arrow-trend-up text-yellow bg-opacity-75\" data-bs-toggle=\"tooltip\" title=\"The trend is improving\"></i>";
             case SHARPLY_IMPROVING:
-                return "<i class=\"fa-solid fa-angles-up text-yellow\"></i>";
+                return "<i class=\"fa-solid fa-angles-up text-yellow\" data-bs-toggle=\"tooltip\" title=\"The trend is sharply improving\"></i>";
             default:
                 throw new IllegalStateException("Unhandled trend: " + this);
         }

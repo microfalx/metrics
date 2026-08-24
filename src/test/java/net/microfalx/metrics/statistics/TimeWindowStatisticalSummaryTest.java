@@ -6,6 +6,7 @@ import java.time.Duration;
 
 import static net.microfalx.lang.ThreadUtils.sleepMillis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class TimeWindowStatisticalSummaryTest {
 
@@ -137,6 +138,30 @@ class TimeWindowStatisticalSummaryTest {
                 .setDirection(Direction.LOWER_IS_BETTER);
         for (int i = 0; i < 10; i++) falling.add(190 - i * 10);
         assertEquals(Trend.SHARPLY_IMPROVING, falling.getTrend());
+    }
+
+    @Test
+    void trendWithLimitAndTooFewSamplesIsStable() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 0; i < 10; i++) summary.add(100 + i * 10);
+        assertEquals(Trend.STABLE, summary.getTrend(3));
+    }
+
+    @Test
+    void trendWithLimitUsesMostRecentSamples() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        double[] values = {200, 190, 180, 170, 160, 150, 140, 130, 140, 150, 160, 170};
+        for (double value : values) summary.add(value);
+        assertEquals(Trend.SHARPLY_IMPROVING, summary.getTrend(4));
+    }
+
+    @Test
+    void getValuesWithLimitReturnsLatestSamples() {
+        TimeWindowStatisticalSummary summary = new TimeWindowStatisticalSummary(Duration.ofSeconds(10));
+        for (int i = 1; i <= 6; i++) summary.add(i);
+
+        assertArrayEquals(new double[]{4, 5, 6}, summary.getValues(3), 0.0001);
+        assertArrayEquals(new double[]{1, 2, 3, 4, 5, 6}, summary.getValues(10), 0.0001);
     }
 
 }

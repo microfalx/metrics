@@ -33,9 +33,25 @@ public interface TrendStatisticalSummary extends StatisticalSummary {
     Trend getTrend();
 
     /**
+     * Returns the trend of the metrics.
+     *
+     * @param limit the maximum number of values to return
+     * @return a non-null instance
+     */
+    Trend getTrend(int limit);
+
+    /**
      * Returns the values used to calculate the trend.
      *
      * @return a non-null instance
      */
     double[] getValues();
+
+    /**
+     * Returns the values used to calculate the trend.
+     *
+     * @param limit the maximum number of values to return
+     * @return a non-null instance
+     */
+    double[] getValues(int limit);
 }
