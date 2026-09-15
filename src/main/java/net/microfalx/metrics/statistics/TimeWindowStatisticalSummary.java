@@ -188,11 +188,16 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
 
     @Override
     public long getSizeOf() {
-        return 64 + getN() * 8;
+        return -1;
     }
 
     @Override
-    public int getCountOf() {
+    public long getArraySizeOf() {
+        return getN() * Double.BYTES;
+    }
+
+    @Override
+    public int getArrayCountOf() {
         return (int) getN();
     }
 
