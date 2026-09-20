@@ -196,6 +196,7 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public Timer start() {
             touch();
+            Metrics.CURRENT.set(this);
             if (type != Type.LONG) throw new IllegalStateException("A short timer cannot be started manually");
             sample = ((io.micrometer.core.instrument.LongTaskTimer) meter).start();
             return this;
@@ -204,12 +205,14 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public Timer stop() {
             if (sample != null) sample.stop();
+            Metrics.CURRENT.remove();
             return this;
         }
 
         @Override
         public <T> T record(Supplier<T> supplier) {
             touch();
+            Metrics.CURRENT.set(this);
             if (type == Type.SHORT) {
                 return ((io.micrometer.core.instrument.Timer) meter).record(supplier);
             } else {
@@ -221,6 +224,7 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public <T> void record(Consumer<T> consumer) {
             touch();
+            Metrics.CURRENT.set(this);
             if (type == Type.SHORT) {
                 ((io.micrometer.core.instrument.Timer) meter).record(() -> consumer.accept((T) this));
             } else {
@@ -231,6 +235,7 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public <T> void record(Consumer<T> consumer, T value) {
             touch();
+            Metrics.CURRENT.set(this);
             if (type == Type.SHORT) {
                 ((io.micrometer.core.instrument.Timer) meter).record(() -> consumer.accept(value));
             } else {
@@ -241,6 +246,7 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public <T> T recordCallable(Callable<T> callable) {
             touch();
+            Metrics.CURRENT.set(this);
             if (type == Type.SHORT) {
                 return ((io.micrometer.core.instrument.Timer) meter).record(() -> {
                     try {
@@ -263,6 +269,7 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public void record(Runnable runnable) {
             touch();
+            Metrics.CURRENT.set(this);
             if (meter instanceof LongTaskTimer) {
                 ((LongTaskTimer) meter).record(runnable);
             } else {
@@ -273,6 +280,7 @@ public class MicrometerMetrics extends Metrics {
         @Override
         public void record(Duration duration) {
             touch();
+            Metrics.CURRENT.set(this);
             if (meter instanceof io.micrometer.core.instrument.Timer) {
                 ((io.micrometer.core.instrument.Timer) meter).record(duration);
             }

@@ -24,6 +24,44 @@ public interface Timer extends Meter, AutoCloseable {
     }
 
     /**
+     * Returns the duration of the last timer.
+     * <p>
+     * This method should be called after the timer has been stopped, otherwise the duration will be 0.
+     *
+     * @return a non-null instance
+     */
+    @SuppressWarnings("resource")
+    static Duration lastDuration() {
+        return current().getDuration();
+    }
+
+    /**
+     * Returns the last started timer for the current thread.
+     * <p>
+     * If a timer does not exist, one will be returned with duration 0.
+     *
+     * @return a non-null instance
+     */
+    static Timer current() {
+        Timer timer = Metrics.LAST.get();
+        if (timer == null) Metrics.SYSTEM.getTimer("na");
+        return timer;
+    }
+
+    /**
+     * Returns the duration of the current timer (which might still run).
+     * <p>
+     * The duration is calculated as the difference between the current time and
+     * the start time of the timer.
+     *
+     * @return a non-null instance
+     */
+    @SuppressWarnings("resource")
+    static Duration currentDuration() {
+        return current().getDuration();
+    }
+
+    /**
      * Returns the type of the timer.
      *
      * @return a non-null enum

@@ -40,6 +40,7 @@ public abstract class Metrics implements Cloneable {
     protected final Map<String, Timer> timers = new ConcurrentHashMap<>();
     protected final Map<String, Summary> summaries = new ConcurrentHashMap<>();
     static ThreadLocal<Timer> LAST = new ThreadLocal<>();
+    static ThreadLocal<Timer> CURRENT = new ThreadLocal<>();
 
     public static final Metrics ROOT = Metrics.of("");
     public static final Metrics SYSTEM = Metrics.of("System");
