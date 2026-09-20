@@ -1,5 +1,6 @@
 package net.microfalx.metrics.statistics;
 
+import net.microfalx.lang.NamedIdentityAware;
 import net.microfalx.lang.Sizeable;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
@@ -16,7 +17,7 @@ import static net.microfalx.lang.TimeUtils.millisSince;
  * a window size to be used with a {@link DescriptiveStatistics} to track the averages, and also tracks
  * the {@link Trend} of the metrics based on the slope of a linear regression over the current window.
  */
-public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, TrendStatisticalSummary, Sizeable {
+public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> implements MutableStatisticalSummary, TrendStatisticalSummary, Sizeable {
 
     private static final long serialVersionUID = 8568742708496566238L;
 
@@ -51,7 +52,7 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
     private final static double FLUCTUATION_THRESHOLD = 0.15;
 
     private final DescriptiveStatistics statistics = new DescriptiveStatistics();
-    private final SimpleStatisticalSummary windowSummary = new SimpleStatisticalSummary();
+    private final SimpleStatisticalSummary updateInterval = new SimpleStatisticalSummary();
     private volatile Duration interval;
     private volatile long refreshInterval = ONE_MINUTE;
     private volatile Direction direction = Direction.HIGHER_IS_BETTER;
@@ -70,18 +71,64 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
         updateWindow();
     }
 
+    /**
+     * Returns the time interval used to calculate summaries (the moving window size).
+     *
+     * @return a non-null duration
+     */
+    public Duration getInterval() {
+        return interval;
+    }
+
+    /**
+     * Changes the time interval used to calculate summaries (the moving window size).
+     *
+     * @param interval a non-null duration
+     * @return this instance
+     */
     public TimeWindowStatisticalSummary setInterval(Duration interval) {
         requireNonNull(interval);
         this.interval = interval;
         return this;
     }
 
+    /**
+     * Returns the size of the window used to calculate summaries (the moving window size).
+     *
+     * @return a positive integer
+     */
+    public int getWindowSize() {
+        return statistics.getWindowSize();
+    }
+
+    /**
+     * Returns the average time interval between updates.
+     *
+     * @return a non-null duration
+     */
+    public Duration getUpdateInterval() {
+        return Duration.ofMillis((long) updateInterval.getMean());
+    }
+
+    /**
+     * Changes the refresh interval, which is the time between recalculating the window size based on the
+     * average update interval.
+     *
+     * @param refreshInterval the new refresh interval
+     * @return self
+     */
     public TimeWindowStatisticalSummary setRefreshInterval(Duration refreshInterval) {
         requireNonNull(refreshInterval);
         this.refreshInterval = refreshInterval.toMillis();
         return this;
     }
 
+    /**
+     * Changes the direction of the metrics, which is used to determine whether a rising or falling trend.
+     *
+     * @param direction the new direction
+     * @return self
+     */
     public TimeWindowStatisticalSummary setDirection(Direction direction) {
         requireNonNull(direction);
         this.direction = direction;
@@ -180,7 +227,7 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
         long now = currentTimeMillis();
         if (lastUpdate > 0) {
             long interval = now - lastUpdate;
-            windowSummary.add(interval);
+            updateInterval.add(interval);
         }
         lastUpdate = now;
         if (millisSince(lastWindowUpdate) > refreshInterval) updateWindow();
@@ -202,8 +249,9 @@ public class TimeWindowStatisticalSummary implements MutableStatisticalSummary, 
     }
 
     private void updateWindow() {
-        long averageUpdateInterval = (long) windowSummary.getMean();
+        long averageUpdateInterval = (long) updateInterval.getMean();
         if (averageUpdateInterval == 0) return;
+        int prevWindowsSize = this.getWindowSize();
         int currentWindow = (int) (interval.toMillis() / averageUpdateInterval);
         currentWindow = Math.max(MINIMUM_WINDOW, (currentWindow / WINDOW_ROUNDING) * WINDOW_ROUNDING);
         if (currentWindow != statistics.getWindowSize()) {

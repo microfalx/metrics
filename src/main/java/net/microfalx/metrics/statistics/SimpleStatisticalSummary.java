@@ -2,7 +2,6 @@ package net.microfalx.metrics.statistics;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -92,7 +91,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
      * @param value the value
      */
     public void add(double value) {
-        this.sum = value;
+        this.sum += value;
         this.n++;
         this.min = Math.min(this.min, value);
         this.max = Math.max(this.max, value);
