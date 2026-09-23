@@ -3,8 +3,9 @@ package net.microfalx.metrics;
 import net.microfalx.lang.TimeUtils;
 import net.microfalx.lang.annotation.Order;
 import net.microfalx.lang.annotation.Provider;
-import net.microfalx.lang.service.Logger;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteErrorCode;
 import org.sqlite.SQLiteException;
@@ -34,7 +35,7 @@ import static net.microfalx.lang.TimeUtils.toMillis;
 @Order(Order.LOW)
 final class SqliteSeriesStore extends AbstractSeriesStore {
 
-    private static final Logger LOGGER = Logger.get(SqliteSeriesStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqliteSeriesStore.class);
 
     private static final Metrics METRICS = Metrics.of("Series").withGroup("Store");
     private static final String DEFAULT_NAME = "metrics";
