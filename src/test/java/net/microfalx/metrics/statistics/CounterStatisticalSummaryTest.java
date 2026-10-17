@@ -1,5 +1,6 @@
 package net.microfalx.metrics.statistics;
 
+import net.microfalx.metrics.Series;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -140,6 +141,31 @@ class CounterStatisticalSummaryTest {
         assertEquals(21, summary.getCount(Duration.ofHours(1)));
         assertEquals(6, summary.getCount(1));
         assertEquals(0, summary.getCount(Duration.ZERO));
+    }
+
+    @Test
+    void series() {
+        CounterStatisticalSummary summary = create(Duration.ofMinutes(1), Duration.ofMinutes(6));
+        assertTrue(summary.getSeries("empty").isEmpty());
+        clock.advance(Duration.ofSeconds(30));
+        long start = Duration.ofDays(1).toMillis();
+        for (int i = 1; i <= 3; i++) {
+            summary.add(i);
+            if (i < 3) clock.advance(Duration.ofMinutes(1));
+        }
+        Series series = summary.getSeries("counter");
+        assertEquals("counter", series.getName());
+        assertEquals(Duration.ofMinutes(6), series.getRetention());
+        assertEquals(3, series.getCount());
+        for (int i = 0; i < 3; i++) {
+            assertEquals(start + Duration.ofMinutes(i).toMillis(), series.get(i).getTimestamp());
+            assertEquals(i + 1, series.get(i).getValue());
+        }
+        Series recent = summary.getSeries("counter", Duration.ofMinutes(2));
+        assertEquals(2, recent.getCount());
+        assertEquals(start + Duration.ofMinutes(1).toMillis(), recent.get(0).getTimestamp());
+        assertEquals(2, recent.get(0).getValue());
+        assertEquals(1, summary.getSeries("counter", 1).getCount());
     }
 
     @Test

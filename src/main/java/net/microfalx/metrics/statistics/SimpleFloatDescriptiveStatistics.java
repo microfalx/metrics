@@ -24,6 +24,11 @@ public class SimpleFloatDescriptiveStatistics implements MutableStatisticalSumma
     private int head;
     private int n;
 
+    /**
+     * A shared object to synchronize on when using multiple instances of this class in the same thread.
+     */
+    public static final Object LOCK = new Object();
+
     public SimpleFloatDescriptiveStatistics(int windowSize) {
         this.values = new float[requireWindowSize(windowSize)];
     }

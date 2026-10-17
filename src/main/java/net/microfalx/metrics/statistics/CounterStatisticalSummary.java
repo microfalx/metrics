@@ -1,10 +1,14 @@
 package net.microfalx.metrics.statistics;
 
+import net.microfalx.metrics.Series;
+import net.microfalx.metrics.Value;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringJoiner;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -41,6 +45,11 @@ public class CounterStatisticalSummary implements MutableStatisticalSummary {
     private int n;
     private long lastBucket;
     private float lastCounter = Float.NaN;
+
+    /**
+     * A shared object to synchronize on when using multiple instances of this class in the same thread.
+     */
+    public static final Object LOCK = new Object();
 
     public CounterStatisticalSummary() {
         this(Duration.ofMinutes(1), Duration.ofHours(1));
@@ -186,6 +195,53 @@ public class CounterStatisticalSummary implements MutableStatisticalSummary {
      */
     public float[] getValues(Duration duration) {
         return getValues(bucketCount(duration));
+    }
+
+    /**
+     * Returns the values of all the buckets as a time series, from the oldest to the most recent (current) bucket.
+     * <p>
+     * Each value is timestamped with the start of its bucket.
+     *
+     * @param name the name of the series
+     * @return a non-null instance
+     */
+    public Series getSeries(String name) {
+        return getSeries(name, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Returns the values of the most recent buckets as a time series, from the oldest to the most recent (current)
+     * bucket.
+     * <p>
+     * Each value is timestamped with the start of its bucket.
+     *
+     * @param name  the name of the series
+     * @param limit the maximum number of buckets to return
+     * @return a non-null instance
+     */
+    public Series getSeries(String name, int limit) {
+        requireNonNull(name);
+        float[] buckets = getValues(limit);
+        List<Value> points = new ArrayList<>(buckets.length);
+        long timestamp = (lastBucket - buckets.length + 1) * bucketSize;
+        for (float bucket : buckets) {
+            points.add(Value.create(timestamp, bucket));
+            timestamp += bucketSize;
+        }
+        return Series.create(name, points).setRetention(getRetention());
+    }
+
+    /**
+     * Returns the values of the buckets covering the last interval of time as a time series, from the oldest to the
+     * most recent (current) bucket.
+     *
+     * @param name     the name of the series
+     * @param duration the interval of time
+     * @return a non-null instance
+     * @see #getValues(Duration)
+     */
+    public Series getSeries(String name, Duration duration) {
+        return getSeries(name, bucketCount(duration));
     }
 
     /**

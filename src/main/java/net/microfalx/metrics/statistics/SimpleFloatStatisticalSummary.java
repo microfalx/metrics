@@ -25,6 +25,11 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
     private float min = Float.NaN;
     private float max = Float.NaN;
 
+    /**
+     * A shared object to synchronize on when using multiple instances of this class in the same thread.
+     */
+    public static final Object LOCK = new Object();
+
     public SimpleFloatStatisticalSummary() {
     }
 

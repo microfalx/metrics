@@ -61,6 +61,11 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
     private volatile long lastUpdate = -1;
     private volatile long lastWindowUpdate = currentTimeMillis();
 
+    /**
+     * A shared object to synchronize on when using multiple instances of this class in the same thread.
+     */
+    public static final Object LOCK = new Object();
+
     public TimeWindowStatisticalSummary() {
         this(Duration.ofMinutes(5));
     }

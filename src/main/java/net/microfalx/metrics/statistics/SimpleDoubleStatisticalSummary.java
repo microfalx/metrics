@@ -24,6 +24,11 @@ public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary
     private double min = Double.NaN;
     private double max = Double.NaN;
 
+    /**
+     * A shared object to synchronize on when using multiple instances of this class in the same thread.
+     */
+    public static final Object LOCK = new Object();
+
     public SimpleDoubleStatisticalSummary() {
     }
 
