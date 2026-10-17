@@ -20,8 +20,8 @@ public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary
 
     private long n = 0;
     private double sum;
-    private double min = Double.MAX_VALUE;
-    private double max = -Double.MAX_VALUE;
+    private double min = Double.NaN;
+    private double max = Double.NaN;
 
     public SimpleDoubleStatisticalSummary() {
     }
@@ -36,7 +36,7 @@ public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary
 
     @Override
     public double getMean() {
-        return n == 0 ? 0 : sum / (double) n;
+        return n == 0 ? Double.NaN : sum / (double) n;
     }
 
     @Override
@@ -97,8 +97,8 @@ public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary
     public void add(double value) {
         this.sum += value;
         this.n++;
-        this.min = Math.min(this.min, value);
-        this.max = Math.max(this.max, value);
+        this.min = Double.isNaN(this.min) ? value : Math.min(this.min, value);
+        this.max = Double.isNaN(this.max) ? value : Math.max(this.max, value);
     }
 
     /**
@@ -110,8 +110,8 @@ public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary
         if (summary.getN() == 0) return;
         this.sum += summary.getSum();
         this.n += summary.getN();
-        this.min = Math.min(this.min, summary.getMin());
-        this.max = Math.max(this.max, summary.getMax());
+        this.min = Double.isNaN(this.min) ? summary.getMin() : Math.min(this.min, summary.getMin());
+        this.max = Double.isNaN(this.max) ? summary.getMax() : Math.max(this.max, summary.getMax());
     }
 
     @Override

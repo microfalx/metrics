@@ -20,8 +20,8 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
 
     private int n = 0;
     private float sum;
-    private float min;
-    private float max;
+    private float min = Float.NaN;
+    private float max = Float.NaN;
 
     public SimpleFloatStatisticalSummary() {
     }
@@ -36,7 +36,7 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
 
     @Override
     public double getMean() {
-        return n == 0 ? 0 : (double) sum / n;
+        return n == 0 ? Double.NaN : (double) sum / n;
     }
 
     @Override
@@ -97,8 +97,8 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
     public void add(float value) {
         this.sum += value;
         this.n++;
-        this.min = Math.min(this.min, value);
-        this.max = Math.max(this.max, value);
+        this.min = Float.isNaN(this.min) ? value : Math.min(this.min, value);
+        this.max = Float.isNaN(this.max) ? value : Math.max(this.max, value);
     }
 
     /**
@@ -122,8 +122,10 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
         if (summary.getN() == 0) return;
         this.sum += (float) summary.getSum();
         this.n = Math.toIntExact(this.n + summary.getN());
-        this.min = Math.min(this.min, (float) summary.getMin());
-        this.max = Math.max(this.max, (float) summary.getMax());
+        float otherMin = (float) summary.getMin();
+        float otherMax = (float) summary.getMax();
+        this.min = Float.isNaN(this.min) ? otherMin : Math.min(this.min, otherMin);
+        this.max = Float.isNaN(this.max) ? otherMax : Math.max(this.max, otherMax);
     }
 
     @Override

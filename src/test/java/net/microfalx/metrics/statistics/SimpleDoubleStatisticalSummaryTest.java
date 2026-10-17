@@ -14,9 +14,11 @@ class SimpleDoubleStatisticalSummaryTest {
         SimpleDoubleStatisticalSummary summary = new SimpleDoubleStatisticalSummary();
         assertEquals(0, summary.getN());
         assertEquals(0, summary.getSum());
-        assertEquals(0, summary.getMean());
+        assertTrue(Double.isNaN(summary.getMean()));
         assertTrue(Double.isNaN(summary.getVariance()));
         assertTrue(Double.isNaN(summary.getStandardDeviation()));
+        assertTrue(Double.isNaN(summary.getMin()));
+        assertTrue(Double.isNaN(summary.getMax()));
     }
 
     @Test
@@ -118,6 +120,6 @@ class SimpleDoubleStatisticalSummaryTest {
     void toStringContainsValues() {
         SimpleDoubleStatisticalSummary summary = new SimpleDoubleStatisticalSummary();
         summary.add(2.0);
-        assertEquals("SimpleStatisticalSummary[n=1, sum=2.0, min=2.0, max=2.0]", summary.toString());
+        assertEquals("SimpleDoubleStatisticalSummary[n=1, sum=2.0, min=2.0, max=2.0]", summary.toString());
     }
 }

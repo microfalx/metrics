@@ -14,9 +14,11 @@ class SimpleFloatStatisticalSummaryTest {
         SimpleFloatStatisticalSummary summary = new SimpleFloatStatisticalSummary();
         assertEquals(0, summary.getN());
         assertEquals(0, summary.getSum());
-        assertEquals(0, summary.getMean());
+        assertTrue(Double.isNaN(summary.getMean()));
         assertTrue(Double.isNaN(summary.getVariance()));
         assertTrue(Double.isNaN(summary.getStandardDeviation()));
+        assertTrue(Double.isNaN(summary.getMin()));
+        assertTrue(Double.isNaN(summary.getMax()));
     }
 
     @Test
