@@ -52,7 +52,7 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
     private final static double FLUCTUATION_THRESHOLD = 0.15;
 
     private final DescriptiveStatistics statistics = new DescriptiveStatistics();
-    private final SimpleStatisticalSummary updateInterval = new SimpleStatisticalSummary();
+    private final SimpleFloatStatisticalSummary updateInterval = new SimpleFloatStatisticalSummary();
     private volatile Duration interval;
     private volatile long refreshInterval = ONE_MINUTE;
     private volatile Direction direction = Direction.HIGHER_IS_BETTER;

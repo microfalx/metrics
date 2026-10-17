@@ -9,20 +9,24 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 /**
  * An implementation of a {@link StatisticalSummary} which only cares about average, min and max.
+ *
+ * <p>Values are kept with double precision and the count as a long. Use {@link SimpleFloatStatisticalSummary}
+ * when a smaller memory footprint matters more than precision.
+ * <p>
  */
-public class SimpleStatisticalSummary implements MutableStatisticalSummary {
+public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary {
 
     private static final long serialVersionUID = -7796746446080742315L;
 
     private long n = 0;
     private double sum;
     private double min = Double.MAX_VALUE;
-    private double max = Double.MIN_VALUE;
+    private double max = -Double.MAX_VALUE;
 
-    public SimpleStatisticalSummary() {
+    public SimpleDoubleStatisticalSummary() {
     }
 
-    public SimpleStatisticalSummary(StatisticalSummary summary) {
+    public SimpleDoubleStatisticalSummary(StatisticalSummary summary) {
         requireNonNull(summary);
         this.n = summary.getN();
         this.sum = summary.getSum();
@@ -50,7 +54,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
         return max;
     }
 
-    public SimpleStatisticalSummary setMax(double max) {
+    public SimpleDoubleStatisticalSummary setMax(double max) {
         this.max = max;
         return this;
     }
@@ -60,7 +64,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
         return min;
     }
 
-    public SimpleStatisticalSummary setMin(double min) {
+    public SimpleDoubleStatisticalSummary setMin(double min) {
         this.min = min;
         return this;
     }
@@ -70,7 +74,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
         return n;
     }
 
-    public SimpleStatisticalSummary setN(long n) {
+    public SimpleDoubleStatisticalSummary setN(long n) {
         this.n = n;
         return this;
     }
@@ -80,7 +84,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
         return sum;
     }
 
-    public SimpleStatisticalSummary setSum(double sum) {
+    public SimpleDoubleStatisticalSummary setSum(double sum) {
         this.sum = sum;
         return this;
     }
@@ -114,7 +118,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SimpleStatisticalSummary that = (SimpleStatisticalSummary) o;
+        SimpleDoubleStatisticalSummary that = (SimpleDoubleStatisticalSummary) o;
         return n == that.n && Double.compare(that.sum, sum) == 0 && Double.compare(that.min, min) == 0
                 && Double.compare(that.max, max) == 0;
     }
@@ -126,7 +130,7 @@ public class SimpleStatisticalSummary implements MutableStatisticalSummary {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", SimpleStatisticalSummary.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", SimpleDoubleStatisticalSummary.class.getSimpleName() + "[", "]")
                 .add("n=" + n)
                 .add("sum=" + sum)
                 .add("min=" + min)
