@@ -20,8 +20,8 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
 
     private int n = 0;
     private float sum;
-    private float min = Float.MAX_VALUE;
-    private float max = -Float.MAX_VALUE;
+    private float min;
+    private float max;
 
     public SimpleFloatStatisticalSummary() {
     }
@@ -41,12 +41,12 @@ public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary 
 
     @Override
     public double getVariance() {
-        return Double.NaN;
+        return Float.NaN;
     }
 
     @Override
     public double getStandardDeviation() {
-        return Double.NaN;
+        return Float.NaN;
     }
 
     @Override

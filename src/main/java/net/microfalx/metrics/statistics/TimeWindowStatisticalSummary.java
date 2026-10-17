@@ -2,7 +2,6 @@ package net.microfalx.metrics.statistics;
 
 import net.microfalx.lang.NamedIdentityAware;
 import net.microfalx.lang.Sizeable;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
 import java.time.Duration;
@@ -14,7 +13,7 @@ import static net.microfalx.lang.TimeUtils.millisSince;
 
 /**
  * A {@link org.apache.commons.math3.stat.descriptive.StatisticalSummary} implementation which calculates
- * a window size to be used with a {@link DescriptiveStatistics} to track the averages, and also tracks
+ * a window size to be used with a {@link SimpleFloatDescriptiveStatistics} to track the averages, and also tracks
  * the {@link Trend} of the metrics based on the slope of a linear regression over the current window.
  */
 public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> implements MutableStatisticalSummary, TrendStatisticalSummary, Sizeable {
@@ -51,7 +50,7 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
      */
     private final static double FLUCTUATION_THRESHOLD = 0.15;
 
-    private final DescriptiveStatistics statistics = new DescriptiveStatistics();
+    private final SimpleFloatDescriptiveStatistics statistics = new SimpleFloatDescriptiveStatistics(MINIMUM_WINDOW);
     private final SimpleFloatStatisticalSummary updateInterval = new SimpleFloatStatisticalSummary();
     private volatile Duration interval;
     private volatile long refreshInterval = ONE_MINUTE;
@@ -66,7 +65,6 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
 
     public TimeWindowStatisticalSummary(Duration interval) {
         requireNonNull(interval);
-        statistics.setWindowSize(MINIMUM_WINDOW);
         this.interval = interval;
         updateWindow();
     }
@@ -147,18 +145,18 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
 
     @Override
     public Trend getTrend(int limit) {
-        double[] values = getValues(limit);
+        float[] values = statistics.getValues(limit);
         if (values.length < MINIMUM_TREND_SAMPLES) return Trend.STABLE;
         SimpleRegression regression = new SimpleRegression();
         for (int index = 0; index < values.length; index++) {
             regression.addData(index, values[index]);
         }
-        double mean = statistics.getMean();
-        double base = Math.abs(mean) > SLOPE_EPSILON ? Math.abs(mean) : 1d;
+        float mean = (float) statistics.getMean();
+        float base = Math.abs(mean) > SLOPE_EPSILON ? Math.abs(mean) : 1f;
         double relativeSlope = regression.getSlope() / base;
         double magnitude = Math.abs(relativeSlope);
         if (magnitude < STABLE_SLOPE_THRESHOLD) {
-            double coefficientOfVariation = statistics.getStandardDeviation() / base;
+            float coefficientOfVariation = (float) statistics.getStandardDeviation() / base;
             return coefficientOfVariation > FLUCTUATION_THRESHOLD ? Trend.FLUCTUATING : Trend.STABLE;
         }
         boolean rising = relativeSlope > 0;
@@ -179,10 +177,11 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
 
     @Override
     public double[] getValues(int limit) {
-        double[] values = statistics.getValues();
-        if (values.length <= limit) return values;
-        double[] result = new double[limit];
-        System.arraycopy(values, values.length - limit, result, 0, limit);
+        float[] values = statistics.getValues(limit);
+        double[] result = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = values[i];
+        }
         return result;
     }
 
@@ -223,7 +222,7 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
 
     @Override
     public void add(double value) {
-        statistics.addValue(value);
+        statistics.add(value);
         long now = currentTimeMillis();
         if (lastUpdate > 0) {
             long interval = now - lastUpdate;
@@ -240,7 +239,7 @@ public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> imp
 
     @Override
     public long getArraySizeOf() {
-        return getN() * Double.BYTES;
+        return (long) statistics.getWindowSize() * Float.BYTES;
     }
 
     @Override
