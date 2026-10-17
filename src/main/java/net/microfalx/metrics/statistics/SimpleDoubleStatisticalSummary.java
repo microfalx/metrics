@@ -12,7 +12,8 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
  *
  * <p>Values are kept with double precision and the count as a long. Use {@link SimpleFloatStatisticalSummary}
  * when a smaller memory footprint matters more than precision.
- * <p>
+ *
+ * <p>This class is not thread-safe.
  */
 public class SimpleDoubleStatisticalSummary implements MutableStatisticalSummary {
 

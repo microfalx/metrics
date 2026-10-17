@@ -15,6 +15,8 @@ import static net.microfalx.lang.TimeUtils.millisSince;
  * A {@link org.apache.commons.math3.stat.descriptive.StatisticalSummary} implementation which calculates
  * a window size to be used with a {@link SimpleFloatDescriptiveStatistics} to track the averages, and also tracks
  * the {@link Trend} of the metrics based on the slope of a linear regression over the current window.
+ *
+ * <p>This class is not thread-safe.
  */
 public class TimeWindowStatisticalSummary extends NamedIdentityAware<String> implements MutableStatisticalSummary, TrendStatisticalSummary, Sizeable {
 

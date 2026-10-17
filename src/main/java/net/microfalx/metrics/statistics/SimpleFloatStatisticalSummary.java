@@ -13,6 +13,8 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
  * <p>Values are kept with float precision and the count as an int, which halves the memory footprint compared
  * with {@link SimpleDoubleStatisticalSummary}. Use it when many summaries are kept around and the highest precision
  * is not needed.
+ *
+ * <p>This class is not thread-safe.
  */
 public class SimpleFloatStatisticalSummary implements MutableStatisticalSummary {
 
