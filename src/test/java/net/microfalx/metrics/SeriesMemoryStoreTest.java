@@ -1,31 +1,19 @@
 package net.microfalx.metrics;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.DefaultSerializers;
-import com.esotericsoftware.kryo.serializers.ImmutableCollectionsSerializers;
-import com.esotericsoftware.kryo.serializers.OptionalSerializers;
-import com.esotericsoftware.kryo.serializers.VersionFieldSerializer;
+import net.microfalx.lang.Serde;
 import net.microfalx.lang.annotation.Order;
 import net.microfalx.lang.annotation.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 class SeriesMemoryStoreTest {
@@ -35,7 +23,6 @@ class SeriesMemoryStoreTest {
     private static final LocalDateTime MIDDLE = START.plusMinutes(2).plusSeconds(30);
 
     private static final int STORE_COUNT = 5;
-    private static final int SERIALIZATION_ID = 1000;
 
     private SeriesStore store;
     private final Metric metric1 = Metric.create("g1");
@@ -104,15 +91,12 @@ class SeriesMemoryStoreTest {
     void serialize() {
         store = new SeriesMemoryStore();
         generateMetric1();
-        Kryo kryo = createKryo();
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        Output output = new Output(buffer);
-        kryo.writeObject(output, store);
-        output.close();
-        kryo.readObject(new Input(new ByteArrayInputStream(buffer.toByteArray())), SeriesMemoryStore.class);
-        assertEquals(1, store.getMetrics().size());
-        assertEquals(30, store.get(metric1).getCount());
-        assertEquals(15.5, store.get(metric1).getAverage().getAsDouble(), 0.001);
+        byte[] data = Serde.serialize(store);
+        SeriesMemoryStore copy = Serde.deserialize(data);
+        assertNotSame(store, copy);
+        assertEquals(1, copy.getMetrics().size());
+        assertEquals(30, copy.get(metric1).getCount());
+        assertEquals(15.5, copy.get(metric1).getAverage().getAsDouble(), 0.001);
     }
 
     private void generateMetric1() {
@@ -134,41 +118,6 @@ class SeriesMemoryStoreTest {
             }
         }
         return stores;
-    }
-
-    private Kryo createKryo() {
-        Kryo kryo = new Kryo();
-        kryo.setDefaultSerializer(VersionFieldSerializer.class);
-        kryo.register(Metric.class, SERIALIZATION_ID + 50);
-        kryo.register(Metric.Type.class, SERIALIZATION_ID + 51);
-        kryo.register(Value.class, SERIALIZATION_ID + 52);
-        kryo.register(SeriesMemoryStore.class, SERIALIZATION_ID + 53);
-        kryo.register(DefaultSeries.class, SERIALIZATION_ID + 54);
-
-        kryo.addDefaultSerializer(AtomicInteger.class, new DefaultSerializers.AtomicIntegerSerializer());
-        kryo.addDefaultSerializer(AtomicLong.class, new DefaultSerializers.AtomicLongSerializer());
-        kryo.addDefaultSerializer(URI.class, new DefaultSerializers.URISerializer());
-        kryo.addDefaultSerializer(Optional.class, new OptionalSerializers.OptionalSerializer());
-        kryo.addDefaultSerializer(OptionalDouble.class, new OptionalSerializers.OptionalDoubleSerializer());
-        kryo.addDefaultSerializer(ConcurrentSkipListMap.class, new DefaultSerializers.ConcurrentSkipListMapSerializer());
-
-        ImmutableCollectionsSerializers.addDefaultSerializers(kryo);
-        ImmutableCollectionsSerializers.addDefaultSerializers(kryo);
-
-        kryo.register(Duration.class, SERIALIZATION_ID + 100);
-        kryo.register(ZonedDateTime.class, SERIALIZATION_ID + 101);
-        kryo.register(URI.class, SERIALIZATION_ID + 102);
-        kryo.register(Optional.class, SERIALIZATION_ID + 103);
-        kryo.register(OptionalDouble.class, SERIALIZATION_ID + 104);
-
-        kryo.register(ArrayList.class, SERIALIZATION_ID + 110);
-        kryo.register(HashSet.class, SERIALIZATION_ID + 111);
-        kryo.register(HashMap.class, SERIALIZATION_ID + 112);
-        kryo.register(ConcurrentSkipListMap.class, SERIALIZATION_ID + 113);
-        kryo.register(CopyOnWriteArrayList.class, SERIALIZATION_ID + 114);
-        kryo.register(CopyOnWriteArraySet.class, SERIALIZATION_ID + 115);
-
-        return kryo;
     }
 
     @Provider
